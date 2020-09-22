@@ -4,7 +4,7 @@ from typing import Any, Callable, List, Optional, Tuple, Set, cast
 from .types import DriverAdapterProtocol, QueryDatum, QueryDataTree, QueryFn, SQLOperationType
 
 
-def _params(args, kwargs):
+def _params(args: Any, kwargs: Any) -> Any:
     if len(kwargs) > 0:
         return kwargs
     else:
@@ -23,40 +23,40 @@ def _make_sync_fn(query_datum: QueryDatum) -> QueryFn:
     query_name, doc_comments, operation_type, sql, record_class = query_datum
     if operation_type == SQLOperationType.INSERT_RETURNING:
 
-        def fn(self: Queries, conn, *args, **kwargs):
+        def fn(self: Queries, conn: Any, *args: Any, **kwargs: Any) -> Any:
             return self.driver_adapter.insert_returning(
                 conn, query_name, sql, _params(args, kwargs)
             )
 
     elif operation_type == SQLOperationType.INSERT_UPDATE_DELETE:
 
-        def fn(self: Queries, conn, *args, **kwargs):
+        def fn(self: Queries, conn: Any, *args: Any, **kwargs: Any) -> Any:
             return self.driver_adapter.insert_update_delete(
                 conn, query_name, sql, _params(args, kwargs)
             )
 
     elif operation_type == SQLOperationType.INSERT_UPDATE_DELETE_MANY:
 
-        def fn(self: Queries, conn, *args, **kwargs):
+        def fn(self: Queries, conn: Any, *args: Any, **kwargs: Any) -> Any:
             return self.driver_adapter.insert_update_delete_many(
                 conn, query_name, sql, *_params(args, kwargs)
             )
 
     elif operation_type == SQLOperationType.SCRIPT:
 
-        def fn(self: Queries, conn, *args, **kwargs):
+        def fn(self: Queries, conn: Any, *args: Any, **kwargs: Any) -> Any:
             return self.driver_adapter.execute_script(conn, sql)
 
     elif operation_type == SQLOperationType.SELECT:
 
-        def fn(self: Queries, conn, *args, **kwargs):
+        def fn(self: Queries, conn: Any, *args: Any, **kwargs: Any) -> Any:
             return self.driver_adapter.select(
                 conn, query_name, sql, _params(args, kwargs), record_class
             )
 
     elif operation_type == SQLOperationType.SELECT_ONE:
 
-        def fn(self: Queries, conn, *args, **kwargs):
+        def fn(self: Queries, conn: Any, *args: Any, **kwargs: Any) -> Any:
             return self.driver_adapter.select_one(
                 conn, query_name, sql, _params(args, kwargs), record_class
             )
@@ -73,14 +73,14 @@ def _make_sync_fn(query_datum: QueryDatum) -> QueryFn:
 
 
 def _make_async_fn(fn: QueryFn) -> QueryFn:
-    async def afn(self: Queries, conn, *args, **kwargs):
+    async def afn(self: Queries, conn: Any, *args: Any, **kwargs: Any) -> Any:
         return await fn(self, conn, *args, **kwargs)
 
     return _query_fn(afn, fn.__name__, fn.__doc__, fn.sql)
 
 
 def _make_ctx_mgr(fn: QueryFn) -> QueryFn:
-    def ctx_mgr(self, conn, *args, **kwargs):
+    def ctx_mgr(self: Queries, conn: Any, *args: Any, **kwargs: Any) -> Any:
         return self.driver_adapter.select_cursor(conn, fn.__name__, fn.sql, _params(args, kwargs))
 
     return _query_fn(ctx_mgr, f"{fn.__name__}_cursor", fn.__doc__, fn.sql)
