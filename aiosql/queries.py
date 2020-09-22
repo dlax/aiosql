@@ -156,13 +156,13 @@ class Queries:
         for child_query_name in child_queries.available_queries:
             self._available_queries.add(f"{child_name}.{child_query_name}")
 
-    def load_from_list(self, query_data: List[QueryDatum]):
+    def load_from_list(self, query_data: List[QueryDatum]) -> "Queries":
         """Load Queries from a list of `QuaryDatum`"""
         for query_datum in query_data:
             self.add_queries(_create_methods(query_datum, self.is_aio))
         return self
 
-    def load_from_tree(self, query_data_tree: QueryDataTree):
+    def load_from_tree(self, query_data_tree: QueryDataTree) -> "Queries":
         """Load Queries from a `QuaryDataTree`"""
         for key, value in query_data_tree.items():
             if isinstance(value, dict):
