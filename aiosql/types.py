@@ -47,6 +47,8 @@ class QueryFn(Protocol):
 # QueryDataTree = Dict[str, Union[QueryDatum, 'QueryDataTree']]
 QueryDataTree = Dict[str, Union[QueryDatum, Dict]]
 
+Parameters = Union[List[Any], Dict[str, Any]]
+
 
 class SyncDriverAdapterProtocol(Protocol):
     def process_sql(self, query_name: str, op_type: SQLOperationType, sql: str) -> str:
@@ -57,7 +59,7 @@ class SyncDriverAdapterProtocol(Protocol):
         conn: Any,
         query_name: str,
         sql: str,
-        parameters: Union[List, Dict],
+        parameters: Parameters,
         record_class: Optional[Callable],
     ) -> List:
         ...
@@ -67,7 +69,7 @@ class SyncDriverAdapterProtocol(Protocol):
         conn: Any,
         query_name: str,
         sql: str,
-        parameters: Union[List, Dict],
+        parameters: Parameters,
         record_class: Optional[Callable],
     ) -> Optional[Any]:
         ...
@@ -78,24 +80,24 @@ class SyncDriverAdapterProtocol(Protocol):
         ...
 
     def select_cursor(
-        self, conn: Any, query_name: str, sql: str, parameters: Union[List, Dict]
+        self, conn: Any, query_name: str, sql: str, parameters: Parameters
     ) -> ContextManager[Any]:
         ...
 
     # TODO: Next major version introduce a return? Optional return?
     def insert_update_delete(
-        self, conn: Any, query_name: str, sql: str, parameters: Union[List, Dict]
+        self, conn: Any, query_name: str, sql: str, parameters: Parameters
     ) -> None:
         ...
 
     # TODO: Next major version introduce a return? Optional return?
     def insert_update_delete_many(
-        self, conn: Any, query_name: str, sql: str, parameters: Union[List, Dict]
+        self, conn: Any, query_name: str, sql: str, parameters: Parameters
     ) -> None:
         ...
 
     def insert_returning(
-        self, conn: Any, query_name: str, sql: str, parameters: Union[List, Dict]
+        self, conn: Any, query_name: str, sql: str, parameters: Parameters
     ) -> Optional[Any]:
         ...
 
@@ -112,7 +114,7 @@ class AsyncDriverAdapterProtocol(Protocol):
         conn: Any,
         query_name: str,
         sql: str,
-        parameters: Union[List, Dict],
+        parameters: Parameters,
         record_class: Optional[Callable],
     ) -> List:
         ...
@@ -122,7 +124,7 @@ class AsyncDriverAdapterProtocol(Protocol):
         conn: Any,
         query_name: str,
         sql: str,
-        parameters: Union[List, Dict],
+        parameters: Parameters,
         record_class: Optional[Callable],
     ) -> Optional[Any]:
         ...
@@ -133,24 +135,24 @@ class AsyncDriverAdapterProtocol(Protocol):
         ...
 
     async def select_cursor(
-        self, conn: Any, query_name: str, sql: str, parameters: Union[List, Dict]
+        self, conn: Any, query_name: str, sql: str, parameters: Parameters
     ) -> AsyncContextManager[Any]:
         ...
 
     # TODO: Next major version introduce a return? Optional return?
     async def insert_update_delete(
-        self, conn: Any, query_name: str, sql: str, parameters: Union[List, Dict]
+        self, conn: Any, query_name: str, sql: str, parameters: Parameters
     ) -> None:
         ...
 
     # TODO: Next major version introduce a return? Optional return?
     async def insert_update_delete_many(
-        self, conn: Any, query_name: str, sql: str, parameters: Union[List, Dict]
+        self, conn: Any, query_name: str, sql: str, parameters: Parameters
     ) -> None:
         ...
 
     async def insert_returning(
-        self, conn: Any, query_name: str, sql: str, parameters: Union[List, Dict]
+        self, conn: Any, query_name: str, sql: str, parameters: Parameters
     ) -> Optional[Any]:
         ...
 
