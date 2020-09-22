@@ -125,10 +125,10 @@ class Queries:
         """
         return sorted(self._available_queries)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return "Queries(" + self.available_queries.__repr__() + ")"
 
-    def add_query(self, query_name: str, fn: Callable):
+    def add_query(self, query_name: str, fn: Callable) -> None:
         """Adds a new dynamic method to this class.
 
         **Parameters:**
@@ -139,12 +139,12 @@ class Queries:
         setattr(self, query_name, fn)
         self._available_queries.add(query_name)
 
-    def add_queries(self, queries: List[Tuple[str, QueryFn]]):
+    def add_queries(self, queries: List[Tuple[str, QueryFn]]) -> None:
         """Add query methods to `Queries` instance."""
         for query_name, fn in queries:
             self.add_query(query_name, MethodType(fn, self))
 
-    def add_child_queries(self, child_name: str, child_queries: "Queries"):
+    def add_child_queries(self, child_name: str, child_queries: "Queries") -> None:
         """Adds a Queries object as a property.
 
         **Parameters:**
