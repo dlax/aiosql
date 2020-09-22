@@ -40,7 +40,7 @@ def from_str(
     *,
     loader_cls: Type[QueryLoader] = QueryLoader,
     queries_cls: Type[Queries] = Queries,
-):
+) -> Queries:
     """Load queries from a SQL string.
 
     **Parameters:**
@@ -93,7 +93,7 @@ def from_path(
     *,
     loader_cls: Type[QueryLoader] = QueryLoader,
     queries_cls: Type[Queries] = Queries,
-):
+) -> Queries:
     """Load queries from a `.sql` file, or directory of `.sql` files.
 
     **Parameters:**
