@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 
 from .exceptions import SQLParseException, SQLLoadException
 from .patterns import (
@@ -13,7 +13,9 @@ from .types import QueryDatum, QueryDataTree, SQLOperationType, DriverAdapterPro
 
 
 class QueryLoader:
-    def __init__(self, driver_adapter: DriverAdapterProtocol, record_classes: Optional[Dict]):
+    def __init__(
+        self, driver_adapter: DriverAdapterProtocol, record_classes: Optional[Dict[str, Any]]
+    ):
         self.driver_adapter = driver_adapter
         self.record_classes = record_classes if record_classes is not None else {}
 

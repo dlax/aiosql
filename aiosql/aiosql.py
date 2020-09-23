@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Callable, Dict, Optional, Type, Union
+from typing import Any, Callable, Dict, Optional, Type, Union
 
 from .adapters.aiosqlite import AioSQLiteAdapter
 from .adapters.asyncpg import AsyncPGAdapter
@@ -36,7 +36,7 @@ def _make_driver_adapter(
 def from_str(
     sql: str,
     driver_adapter: Union[str, Callable[..., DriverAdapterProtocol]],
-    record_classes: Optional[Dict] = None,
+    record_classes: Optional[Dict[str, Any]] = None,
     *,
     loader_cls: Type[QueryLoader] = QueryLoader,
     queries_cls: Type[Queries] = Queries,
@@ -89,7 +89,7 @@ def from_str(
 def from_path(
     sql_path: Union[str, Path],
     driver_adapter: Union[str, Callable[..., DriverAdapterProtocol]],
-    record_classes: Optional[Dict] = None,
+    record_classes: Optional[Dict[str, Any]] = None,
     *,
     loader_cls: Type[QueryLoader] = QueryLoader,
     queries_cls: Type[Queries] = Queries,
