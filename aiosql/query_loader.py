@@ -19,7 +19,7 @@ class QueryLoader:
         self.driver_adapter = driver_adapter
         self.record_classes = record_classes if record_classes is not None else {}
 
-    def _make_query_datum(self, query_str: str):
+    def _make_query_datum(self, query_str: str) -> QueryDatum:
         lines = [line.strip() for line in query_str.strip().splitlines()]
         query_name = lines[0].replace("-", "_")
 
@@ -87,13 +87,13 @@ class QueryLoader:
         with file_path.open() as fp:
             return self.load_query_data_from_sql(fp.read())
 
-    def load_query_data_from_dir_path(self, dir_path) -> QueryDataTree:
+    def load_query_data_from_dir_path(self, dir_path: Path) -> QueryDataTree:
         if not dir_path.is_dir():
             raise ValueError(f"The path {dir_path} must be a directory")
 
-        def _recurse_load_query_data_tree(path):
+        def _recurse_load_query_data_tree(path: Path) -> QueryDataTree:
             # queries = Queries()
-            query_data_tree = {}
+            query_data_tree: QueryDataTree = {}
             for p in path.iterdir():
                 if p.is_file() and p.suffix != ".sql":
                     continue
