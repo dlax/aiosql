@@ -48,13 +48,13 @@ class QueryLoader:
             )
 
         record_class_match = query_record_class_definition_pattern.match(lines[1])
-        record_class_name: Optional[str]
+        record_class = None
         if record_class_match:
             line_offset = 2
             record_class_name = record_class_match.group(1)
+            record_class = self.record_classes.get(record_class_name)
         else:
             line_offset = 1
-            record_class_name = None
 
         doc_comments = ""
         sql = ""
@@ -67,7 +67,6 @@ class QueryLoader:
 
         doc_comments = doc_comments.strip()
         sql = self.driver_adapter.process_sql(query_name, operation_type, sql.strip())
-        record_class = self.record_classes.get(record_class_name)
 
         return QueryDatum(query_name, doc_comments, operation_type, sql, record_class)
 
