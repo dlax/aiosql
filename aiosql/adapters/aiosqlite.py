@@ -1,11 +1,14 @@
+from typing import Any, AsyncGenerator, Callable, Optional
+
 from ..aioctxlib import aiocontextmanager
+from ..types import Parameters, SQLOperationType
 
 
 class AioSQLiteAdapter:
     is_aio_driver = True
 
     @staticmethod
-    def process_sql(_query_name, _op_type, sql):
+    def process_sql(_query_name: str, _op_type: SQLOperationType, sql: str) -> str:
         """Pass through function because the ``aiosqlite`` driver can already handle the
         :var_name format used by aiosql and doesn't need any additional processing.
 
@@ -20,7 +23,13 @@ class AioSQLiteAdapter:
         return sql
 
     @staticmethod
-    async def select(conn, _query_name, sql, parameters, record_class=None):
+    async def select(
+        conn: Any,
+        _query_name: str,
+        sql: str,
+        parameters: Parameters,
+        record_class: Optional[Callable] = None,
+    ) -> Any:
         async with conn.execute(sql, parameters) as cur:
             results = await cur.fetchall()
             if record_class is not None:
@@ -29,7 +38,13 @@ class AioSQLiteAdapter:
         return results
 
     @staticmethod
-    async def select_one(conn, _query_name, sql, parameters, record_class=None):
+    async def select_one(
+        conn: Any,
+        _query_name: str,
+        sql: str,
+        parameters: Parameters,
+        record_class: Optional[Callable] = None,
+    ) -> Optional[Any]:
         async with conn.execute(sql, parameters) as cur:
             result = await cur.fetchone()
             if result is not None and record_class is not None:
@@ -45,26 +60,34 @@ class AioSQLiteAdapter:
 
     @staticmethod
     @aiocontextmanager
-    async def select_cursor(conn, _query_name, sql, parameters):
+    async def select_cursor(
+        conn: Any, _query_name: str, sql: str, parameters: Parameters
+    ) -> AsyncGenerator[Any, Any]:
         async with conn.execute(sql, parameters) as cur:
             yield cur
 
     @staticmethod
-    async def insert_returning(conn, _query_name, sql, parameters):
+    async def insert_returning(
+        conn: Any, _query_name: str, sql: str, parameters: Parameters
+    ) -> Any:
         async with conn.execute(sql, parameters) as cur:
             return cur.lastrowid
 
     @staticmethod
-    async def insert_update_delete(conn, _query_name, sql, parameters):
+    async def insert_update_delete(
+        conn: Any, _query_name: str, sql: str, parameters: Parameters
+    ) -> None:
         cur = await conn.execute(sql, parameters)
         await cur.close()
 
     @staticmethod
-    async def insert_update_delete_many(conn, _query_name, sql, parameters):
+    async def insert_update_delete_many(
+        conn: Any, _query_name: str, sql: str, parameters: Parameters
+    ) -> None:
         cur = await conn.executemany(sql, parameters)
         await cur.close()
 
     @staticmethod
-    async def execute_script(conn, sql):
+    async def execute_script(conn: Any, sql: str) -> None:
         await conn.executescript(sql)
         return "DONE"

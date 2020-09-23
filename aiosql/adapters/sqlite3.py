@@ -1,9 +1,12 @@
 from contextlib import contextmanager
+from typing import Any, Callable, Iterator, Optional
+
+from ..types import Parameters, SQLOperationType
 
 
 class SQLite3DriverAdapter:
     @staticmethod
-    def process_sql(_query_name, _op_type, sql):
+    def process_sql(_query_name: str, _op_type: SQLOperationType, sql: str) -> str:
         """Pass through function because the ``sqlite3`` driver already handles the :var_name
         "named style" syntax used by aiosql variables. Note, it will also accept "qmark style"
         variables.
@@ -19,7 +22,13 @@ class SQLite3DriverAdapter:
         return sql
 
     @staticmethod
-    def select(conn, _query_name, sql, parameters, record_class=None):
+    def select(
+        conn: Any,
+        _query_name: str,
+        sql: str,
+        parameters: Parameters,
+        record_class: Optional[Callable] = None,
+    ) -> Any:
         cur = conn.cursor()
         cur.execute(sql, parameters)
         results = cur.fetchall()
@@ -30,7 +39,13 @@ class SQLite3DriverAdapter:
         return results
 
     @staticmethod
-    def select_one(conn, _query_name, sql, parameters, record_class=None):
+    def select_one(
+        conn: Any,
+        _query_name: str,
+        sql: str,
+        parameters: Parameters,
+        record_class: Optional[Callable] = None,
+    ) -> Optional[Any]:
         cur = conn.cursor()
         cur.execute(sql, parameters)
         result = cur.fetchone()
@@ -50,7 +65,9 @@ class SQLite3DriverAdapter:
 
     @staticmethod
     @contextmanager
-    def select_cursor(conn, _query_name, sql, parameters):
+    def select_cursor(
+        conn: Any, _query_name: str, sql: str, parameters: Parameters
+    ) -> Iterator[Any]:
         cur = conn.cursor()
         cur.execute(sql, parameters)
         try:
@@ -59,15 +76,17 @@ class SQLite3DriverAdapter:
             cur.close()
 
     @staticmethod
-    def insert_update_delete(conn, _query_name, sql, parameters):
+    def insert_update_delete(conn: Any, _query_name: str, sql: str, parameters: Parameters) -> None:
         conn.execute(sql, parameters)
 
     @staticmethod
-    def insert_update_delete_many(conn, _query_name, sql, parameters):
+    def insert_update_delete_many(
+        conn: Any, _query_name: str, sql: str, parameters: Parameters
+    ) -> None:
         conn.executemany(sql, parameters)
 
     @staticmethod
-    def insert_returning(conn, _query_name, sql, parameters):
+    def insert_returning(conn: Any, _query_name: str, sql: str, parameters: Parameters) -> Any:
         cur = conn.cursor()
         cur.execute(sql, parameters)
         results = cur.lastrowid
@@ -75,6 +94,6 @@ class SQLite3DriverAdapter:
         return results
 
     @staticmethod
-    def execute_script(conn, sql):
+    def execute_script(conn: Any, sql: str) -> None:
         conn.executescript(sql)
         return "DONE"

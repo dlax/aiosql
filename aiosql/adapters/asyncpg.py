@@ -1,14 +1,16 @@
 from collections import defaultdict
+from typing import Any, AsyncGenerator, Callable, Dict, List, Optional, Tuple, Union
 
 from ..aioctxlib import aiocontextmanager
 from ..patterns import var_pattern
+from ..types import Parameters, SQLOperationType
 
 
 class MaybeAcquire:
-    def __init__(self, client):
+    def __init__(self, client: Any) -> None:
         self.client = client
 
-    async def __aenter__(self):
+    async def __aenter__(self) -> Any:
         if "acquire" in dir(self.client):
             self._managed_conn = await self.client.acquire()
             return self._managed_conn
@@ -16,7 +18,7 @@ class MaybeAcquire:
             self._managed_conn = None
             return self.client
 
-    async def __aexit__(self, exc_type, exc, tb):
+    async def __aexit__(self, exc_type: Any, exc: Any, tb: Any) -> None:
         if self._managed_conn is not None:
             await self.client.release(self._managed_conn)
 
@@ -24,10 +26,10 @@ class MaybeAcquire:
 class AsyncPGAdapter:
     is_aio_driver = True
 
-    def __init__(self):
-        self.var_replacements = defaultdict(dict)
+    def __init__(self) -> None:
+        self.var_replacements: Dict[str, Dict] = defaultdict(dict)
 
-    def process_sql(self, query_name, _op_type, sql):
+    def process_sql(self, query_name: str, _op_type: SQLOperationType, sql: str) -> str:
         count = 0
         adj = 0
 
@@ -60,7 +62,9 @@ class AsyncPGAdapter:
 
         return sql
 
-    def maybe_order_params(self, query_name, parameters):
+    def maybe_order_params(
+        self, query_name: str, parameters: Union[Dict, Tuple]
+    ) -> Union[Tuple, List]:
         if isinstance(parameters, dict):
             xs = [(self.var_replacements[query_name][k], v) for k, v in parameters.items()]
             xs = sorted(xs, key=lambda x: x[0])
@@ -70,7 +74,14 @@ class AsyncPGAdapter:
         else:
             raise ValueError(f"Parameters expected to be dict or tuple, received {parameters}")
 
-    async def select(self, conn, query_name, sql, parameters, record_class=None):
+    async def select(
+        self,
+        conn: Any,
+        query_name: str,
+        sql: str,
+        parameters: Parameters,
+        record_class: Optional[Callable] = None,
+    ) -> Any:
         parameters = self.maybe_order_params(query_name, parameters)
         async with MaybeAcquire(conn) as connection:
             results = await connection.fetch(sql, *parameters)
@@ -78,7 +89,14 @@ class AsyncPGAdapter:
                 results = [record_class(**dict(rec)) for rec in results]
         return results
 
-    async def select_one(self, conn, query_name, sql, parameters, record_class=None):
+    async def select_one(
+        self,
+        conn: Any,
+        query_name: str,
+        sql: str,
+        parameters: Parameters,
+        record_class: Optional[Callable] = None,
+    ) -> Optional[Any]:
         parameters = self.maybe_order_params(query_name, parameters)
         async with MaybeAcquire(conn) as connection:
             result = await connection.fetchrow(sql, *parameters)
@@ -92,14 +110,18 @@ class AsyncPGAdapter:
             return await connection.fetchval(sql, *parameters)
 
     @aiocontextmanager
-    async def select_cursor(self, conn, query_name, sql, parameters):
+    async def select_cursor(
+        self, conn: Any, query_name: str, sql: str, parameters: Parameters
+    ) -> AsyncGenerator[Any, Any]:
         parameters = self.maybe_order_params(query_name, parameters)
         async with MaybeAcquire(conn) as connection:
             stmt = await connection.prepare(sql)
             async with connection.transaction():
                 yield stmt.cursor(*parameters)
 
-    async def insert_returning(self, conn, query_name, sql, parameters):
+    async def insert_returning(
+        self, conn: Any, query_name: str, sql: str, parameters: Parameters
+    ) -> Any:
         parameters = self.maybe_order_params(query_name, parameters)
         async with MaybeAcquire(conn) as connection:
             res = await connection.fetchrow(sql, *parameters)
@@ -108,17 +130,21 @@ class AsyncPGAdapter:
             else:
                 return None
 
-    async def insert_update_delete(self, conn, query_name, sql, parameters):
+    async def insert_update_delete(
+        self, conn: Any, query_name: str, sql: str, parameters: Parameters
+    ) -> None:
         parameters = self.maybe_order_params(query_name, parameters)
         async with MaybeAcquire(conn) as connection:
             await connection.execute(sql, *parameters)
 
-    async def insert_update_delete_many(self, conn, query_name, sql, parameters):
+    async def insert_update_delete_many(
+        self, conn: Any, query_name: str, sql: str, parameters: Parameters
+    ) -> None:
         parameters = [self.maybe_order_params(query_name, params) for params in parameters]
         async with MaybeAcquire(conn) as connection:
             await connection.executemany(sql, parameters)
 
     @staticmethod
-    async def execute_script(conn, sql):
+    async def execute_script(conn: Any, sql: str) -> None:
         async with MaybeAcquire(conn) as connection:
             return await connection.execute(sql)
