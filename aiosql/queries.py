@@ -128,7 +128,7 @@ class Queries:
     def __repr__(self) -> str:
         return "Queries(" + self.available_queries.__repr__() + ")"
 
-    def add_query(self, query_name: str, fn: Callable) -> None:
+    def add_query(self, query_name: str, fn: Callable[..., Any]) -> None:
         """Adds a new dynamic method to this class.
 
         **Parameters:**
