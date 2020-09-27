@@ -8,7 +8,9 @@ from typing import (
     List,
     NamedTuple,
     Optional,
+    TypeVar,
     Union,
+    overload,
 )
 
 from typing_extensions import Protocol
@@ -49,19 +51,33 @@ QueryDataTree = Dict[str, Union[QueryDatum, Dict]]
 
 Parameters = Union[List[Any], Dict[str, Any]]
 
+T = TypeVar("T")
+
 
 class SyncDriverAdapterProtocol(Protocol):
     def process_sql(self, query_name: str, op_type: SQLOperationType, sql: str) -> str:
         ...
 
+    @overload
     def select(
         self,
         conn: Any,
         query_name: str,
         sql: str,
         parameters: Parameters,
-        record_class: Optional[Callable],
-    ) -> List:
+        record_class: None,
+    ) -> List[Any]:
+        ...
+
+    @overload
+    def select(
+        self,
+        conn: Any,
+        query_name: str,
+        sql: str,
+        parameters: Parameters,
+        record_class: Callable[..., T],
+    ) -> List[T]:
         ...
 
     def select_one(
